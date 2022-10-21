@@ -1,3 +1,5 @@
+import os
+
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +20,7 @@ def getting_geo_coordinates(stations, station):
 
 def main():
 
-	all_stations = []
+	all_stations = [name for name in os.listdir('../../../../data/supermag/baseline/') if os.path.isdir(name)]
 	stations = pd.DataFrame()
 	for station in all_stations:
 		stations = getting_geo_coordinates(stations, station)
