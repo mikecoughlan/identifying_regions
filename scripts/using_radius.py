@@ -5,7 +5,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point
 
 
 def getting_geo_coordinates(stations, station):
@@ -32,14 +32,13 @@ def converting_from_degrees_to_km(lat_1, lon_1, lat_2, lon_2):
 	return distance
 
 
-def converting_regions_to_polygons(df):
+def converting_regions_to_gdf(df):
 
-	lon_point_list = df['GEOLON'].tolist()
-	lat_point_list = df['GEOLAT'].tolist()
-	geometry = Polygon(zip(lon_point_list, lat_point_list))
-	polygon = gpd.GeoDataFrame(index=[0], crs='epsg:4326', geometry=geometry)
+	geometry = [Point(xy) for xy in zip(df.GEOLON, df.GEOLAT)]
+	df = df.drop(['GEOLON', 'GEOLAT'], axis=1)
+	gdf = gpd.GeoDataFrame(df, crs="EPSG:4326", geometry=geometry)
 
-	return polygon
+	return gdf
 
 def finding_regions(stations):
 
@@ -53,7 +52,7 @@ def finding_regions(stations):
 			if dist<250:
 				df = pd.concat([df,other_stations], axis=0)
 
-		# df = converting_regions_to_polygons(df)
+		df = converting_regions_to_gdf(df)
 		regions['station'] = df
 
 
