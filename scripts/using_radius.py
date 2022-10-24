@@ -1,15 +1,17 @@
+import math
 import os
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from shapely.geometry import Point
 
 
 def getting_geo_coordinates(stations, station):
 
-	df = pd.read_csv('../../data/supermag/{0}'.format(station))
-	df = df[['geolat', 'geolon']][0]
+	df = pd.read_csv('../../../../data/supermag/baseline/{0}'.format(station))
+	df = df[['GEOLAT', 'GEOLON']][0]
 
 	df['station'] = station
 
@@ -17,10 +19,48 @@ def getting_geo_coordinates(stations, station):
 
 	return stations
 
+def converting_from_degrees_to_km(lat_1, lon_1, lat_2, lon_2):
+
+	mean_lat = (lat_1 + lat_2)/2
+	x = lon_2 - lon_1
+	y = lat_2 - lat_1
+	dist_x = x*(111.320*math.cos(math.radians(mean_lat)))
+	dist_y = y*110.574
+
+	distance = math.sqrt((dist_x**2)+(dist_y**2))
+
+	return distance
+
+
+def converting_regions_to_gdf(df):
+
+	geometry = [Point(xy) for xy in zip(df.GEOLON, df.GEOLAT)]
+	df = df.drop(['GEOLON', 'GEOLAT'], axis=1)
+	gdf = gpd.GeoDataFrame(df, crs="EPSG:4326", geometry=geometry)
+
+	return gdf
+
+def finding_regions(stations):
+
+	regions = {}
+	for station in stations:
+		df = pd.DataFrame()
+		lat_1 = station['GEOLAT']
+		lon_1 = station['GEOLON']
+		for other_stations in stations:
+			dist = converting_from_degrees_to_km(lat_1, lon_1, other_stations['GEOLAT'], other_stations['GEOLON'])
+			if dist<250:
+				df = pd.concat([df,other_stations], axis=0)
+
+		df = converting_regions_to_gdf(df)
+		regions['station'] = df
+
 
 def main():
 
 	all_stations = [name for name in os.listdir('../../../../data/supermag/baseline/') if os.path.isdir(name)]
 	stations = pd.DataFrame()
 	for station in all_stations:
+		print(station)
 		stations = getting_geo_coordinates(stations, station)
+
