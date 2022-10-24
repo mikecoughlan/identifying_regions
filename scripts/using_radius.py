@@ -65,3 +65,6 @@ def main():
 		print(station)
 		stations = getting_geo_coordinates(stations, station)
 
+
+if __name__ == '__main__':
+	main()
