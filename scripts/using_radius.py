@@ -17,7 +17,11 @@ def getting_geo_coordinates(stations, station):
 
 	df['station'] = station
 
+	print(df)
+
 	stations = pd.concat([stations, df], axis=0)
+
+	print(stations)
 
 	return stations
 
@@ -95,7 +99,7 @@ def main():
 		for station in all_stations:
 			print(station)
 			stations = getting_geo_coordinates(stations, station)
-		stations.to_csv('../outputs/station_geo_locations.csv')
+		stations.to_csv('../outputs/station_geo_locations.csv', index=False)
 
 	else:
 		stations = pd.read_csv('../outputs/station_geo_locations.csv')
