@@ -11,10 +11,10 @@ from shapely.geometry import Point, Polygon
 
 def getting_geo_coordinates(stations, station):
 
-	list_of_dfs = glob.glob('../../../../supermag/baseline/{0}/*.csv'.format(station), recursive=True)
+	list_of_dfs = sorted(glob.glob('../../../../supermag/baseline/{0}/*.csv'.format(station), recursive=True))
 	print(list_of_dfs)
 	df = pd.read_csv(list_of_dfs[0])
-	df = df[['GEOLAT', 'GEOLON']][0]
+	df = df[['GEOLAT', 'GEOLON'][0]]
 
 	df['station'] = station
 
