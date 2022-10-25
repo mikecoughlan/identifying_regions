@@ -13,7 +13,8 @@ def getting_geo_coordinates(stations, station):
 
 	list_of_dfs = sorted(glob.glob('../../../../supermag/baseline/{0}/*.csv'.format(station), recursive=True))
 	df = pd.read_csv(list_of_dfs[0])
-	df = df['GEOLAT', 'GEOLON'][0]
+	print(df)
+	df = df[['GEOLAT', 'GEOLON']][:1]
 
 	df['station'] = station
 
