@@ -43,7 +43,7 @@ def converting_regions_to_polygons(df):
 	lon_point_list = df['GEOLON'].tolist()
 	lat_point_list = df['GEOLAT'].tolist()
 	geometry = Polygon(zip(lon_point_list, lat_point_list))
-	polygon = gpd.GeoDataFrame(index=[0], crs='epsg:4326', geometry=geometry)
+	# polygon = gpd.GeoDataFrame(index=[0], crs='epsg:4326', geometry=geometry)
 
 	return polygon
 
