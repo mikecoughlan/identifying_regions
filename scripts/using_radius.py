@@ -34,7 +34,6 @@ def converting_from_degrees_to_km(lat_1, lon_1, lat_2, lon_2):
 	dist_y = y*110.574
 
 	distance = math.sqrt((dist_x**2)+(dist_y**2))
-	print('Distance: '+str(distance))
 
 	return distance
 
@@ -58,7 +57,9 @@ def finding_regions(stations):
 		for j in range(len(stations)):
 			stations_in_region = []
 			dist = converting_from_degrees_to_km(lat_1, lon_1, stations['GEOLAT'][j], stations['GEOLON'][j])
+			print('Station: '+str(stations['station'][j])+' Distance: '+str(dist))
 			if dist<250:
+				print('I\'m here')
 				stations_in_region.append(stations['station'][j])
 		df = stations[stations['station'].isin(stations_in_region)]
 		print(df)
