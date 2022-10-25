@@ -46,17 +46,27 @@ def converting_regions_to_polygons(df):
 def finding_regions(stations):
 
 	regions = {}
-	for station in stations:
+	for i, station in enumerate(stations):
 		df = pd.DataFrame()
 		lat_1 = station['GEOLAT']
 		lon_1 = station['GEOLON']
 		for other_stations in stations:
+			stations_in_region = []
 			dist = converting_from_degrees_to_km(lat_1, lon_1, other_stations['GEOLAT'], other_stations['GEOLON'])
 			if dist<250:
 				df = pd.concat([df,other_stations], axis=0)
+				stations_in_region.append(other_stations)
 
-		# df = converting_regions_to_polygons(df)
-		regions['station'] = df
+		poly = converting_regions_to_polygons(df)
+		regions['region_{0}'.format(i)] = {}
+		regions['region_{0}'.format(i)]['shape'] = poly
+		regions['region_{0}'.format(i)]['stations'] = stations_in_region
+
+	return regions
+
+
+def plotting_regions(regions)
+
 
 
 def main():
@@ -66,6 +76,10 @@ def main():
 	for station in all_stations:
 		print(station)
 		stations = getting_geo_coordinates(stations, station)
+	if not os.path.isfile('../outputs/station_geo_locations.csv'):
+		stations.to_csv('../outputs/station_geo_locations.csv')
+	regions = finding_regions(stations)
+	# plotting_regions(regions)
 
 
 if __name__ == '__main__':
