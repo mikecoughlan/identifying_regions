@@ -84,8 +84,9 @@ def finding_regions(stations):
 def plotting_regions(regions):
 
 	df = regions['plotting_gdf']
-	fig = plt.figure(figsize=(15,10))
-
+	fig = plt.figure(figsize=(60,55))
+	world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+	world.plot()
 	df.plot(column='num_stations_in_region', legend=True)
 
 	plt.savefig('../plots/finding_regions_ver1.png')
