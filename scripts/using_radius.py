@@ -34,6 +34,7 @@ def converting_from_degrees_to_km(lat_1, lon_1, lat_2, lon_2):
 	dist_y = y*110.574
 
 	distance = math.sqrt((dist_x**2)+(dist_y**2))
+	print('Distance: '+str(distance))
 
 	return distance
 
@@ -53,7 +54,6 @@ def finding_regions(stations):
 	print(stations)
 	for i in range(len(stations)):
 		polys, num = [], []
-		print(stations.iloc[i])
 		lat_1 = stations['GEOLAT'][i]
 		lon_1 = stations['GEOLON'][i]
 		for j in range(len(stations)):
