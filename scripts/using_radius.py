@@ -83,7 +83,7 @@ def finding_regions(stations):
 
 def plotting_regions(regions):
 
-	df = regions['plotting_df']
+	df = regions['plotting_gdf']
 	fig = plt.figure(figsize=(15,10))
 
 	df.plot(column='num_stations_in_region', legend=True)
