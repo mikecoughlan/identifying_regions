@@ -61,7 +61,7 @@ def finding_regions(stations):
 			dist = converting_from_degrees_to_km(lat_1, lon_1, stations['GEOLAT'][j], stations['GEOLON'][j])
 			if dist<250:
 				df = pd.concat([df,stations.loc[j]], axis=0)
-				stations_in_region.append(stations['stations'][j])
+				stations_in_region.append(stations['station'][j])
 
 		if not df.empty:
 			poly = converting_regions_to_polygons(df)
