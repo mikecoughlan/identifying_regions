@@ -50,6 +50,7 @@ def converting_regions_to_polygons(df):
 def finding_regions(stations):
 
 	regions = {}
+	print(stations)
 	for i, station in enumerate(stations):
 		df, polys, num = pd.DataFrame(), [], []
 		print(station)
