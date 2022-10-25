@@ -72,10 +72,10 @@ def finding_regions(stations):
 			polys.append(poly)
 			num.append(len(stations_in_region))
 
-		gdf = pd.DataFrame({'geometry':polys,
-							'num_stations_in_region': num})
-		gdf = gpd.GeoDataFrame(gdf, geometry=gdf.geometry)
-		regions['plotting_gdf'] = gdf
+	gdf = pd.DataFrame({'geometry':polys,
+						'num_stations_in_region': num})
+	gdf = gpd.GeoDataFrame(gdf, geometry=gdf.geometry)
+	regions['plotting_gdf'] = gdf
 
 	return regions
 
