@@ -65,7 +65,8 @@ def finding_regions(stations):
 	return regions
 
 
-def plotting_regions(regions)
+# def plotting_regions(regions):
+
 
 
 
