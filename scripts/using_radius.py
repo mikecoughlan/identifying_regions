@@ -48,6 +48,7 @@ def finding_regions(stations):
 	regions = {}
 	for i, station in enumerate(stations):
 		df, polys, num = pd.DataFrame(), [], []
+		print(station)
 		lat_1 = station['GEOLAT'][0]
 		lon_1 = station['GEOLON'][0]
 		for other_stations in stations:
@@ -76,7 +77,12 @@ def finding_regions(stations):
 
 def plotting_regions(regions):
 
-	gdf = pd.concat([regions['region_{0}'.format(i)]['shape'] for i in range(len(regions))], axis=0)
+	df = regions['plotting_df']
+	fig = plt.figure(figsize=(15,10))
+
+	df.plot(column='num_stations_in_region', legend=True)
+
+	plt.savefig('../plots/finding_regions_ver1.png')
 
 
 
@@ -94,7 +100,7 @@ def main():
 	else:
 		stations = pd.read_csv('../outputs/station_geo_locations.csv')
 	regions = finding_regions(stations)
-	# plotting_regions(regions)
+	plotting_regions(regions)
 
 
 if __name__ == '__main__':
