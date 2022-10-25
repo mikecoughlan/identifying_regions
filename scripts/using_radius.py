@@ -55,8 +55,8 @@ def finding_regions(stations):
 		print('\nStation examined: '+str(stations['station'][i]))
 		lat_1 = stations['GEOLAT'][i]
 		lon_1 = stations['GEOLON'][i]
+		stations_in_region = []
 		for j in range(len(stations)):
-			stations_in_region = []
 			dist = converting_from_degrees_to_km(lat_1, lon_1, stations['GEOLAT'][j], stations['GEOLON'][j])
 			print('Station: '+str(stations['station'][j])+' Distance: '+str(dist))
 			if dist<250:
