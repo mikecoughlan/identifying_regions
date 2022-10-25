@@ -52,7 +52,7 @@ def finding_regions(stations):
 	regions = {}
 	print(stations)
 	for i in range(len(stations)):
-		df, polys, num = pd.DataFrame(), [], []
+		polys, num = [], []
 		print(stations.iloc[i])
 		lat_1 = stations['GEOLAT'][i]
 		lon_1 = stations['GEOLON'][i]
@@ -60,10 +60,10 @@ def finding_regions(stations):
 			stations_in_region = []
 			dist = converting_from_degrees_to_km(lat_1, lon_1, stations['GEOLAT'][j], stations['GEOLON'][j])
 			if dist<250:
-				df = pd.concat([df,stations.loc[j]], axis=0)
 				stations_in_region.append(stations['station'][j])
+		df = stations[stations['station'].isin(stations_in_region)]
 		print(df)
-		if not df.empty:
+		if len(df >1):
 			poly = converting_regions_to_polygons(df)
 			regions['region_{0}'.format(i)] = {}
 			regions['region_{0}'.format(i)]['shape'] = poly
