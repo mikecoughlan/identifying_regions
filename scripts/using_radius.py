@@ -47,9 +47,9 @@ def finding_regions(stations):
 
 	regions = {}
 	for i, station in enumerate(stations):
-		df = pd.DataFrame()
-		lat_1 = station['GEOLAT']
-		lon_1 = station['GEOLON']
+		df, polys, num = pd.DataFrame(), [], []
+		lat_1 = station['GEOLAT'][0]
+		lon_1 = station['GEOLON'][0]
 		for other_stations in stations:
 			stations_in_region = []
 			dist = converting_from_degrees_to_km(lat_1, lon_1, other_stations['GEOLAT'], other_stations['GEOLON'])
@@ -57,28 +57,42 @@ def finding_regions(stations):
 				df = pd.concat([df,other_stations], axis=0)
 				stations_in_region.append(other_stations)
 
-		poly = converting_regions_to_polygons(df)
-		regions['region_{0}'.format(i)] = {}
-		regions['region_{0}'.format(i)]['shape'] = poly
-		regions['region_{0}'.format(i)]['stations'] = stations_in_region
+		if not df.empty:
+			poly = converting_regions_to_polygons(df)
+			regions['region_{0}'.format(i)] = {}
+			regions['region_{0}'.format(i)]['shape'] = poly
+			regions['region_{0}'.format(i)]['stations'] = stations_in_region
+			regions['region_{0}'.format(i)]['num_stations_in_region'] = len(stations_in_region)
+			polys.append(poly)
+			num.append(len(stations_in_region))
+
+		gdf = pd.DataFrame({'geometry':polys,
+							'num_stations_in_region': num})
+		gdf = gpd.GeoDataFrame(gdf, geometry=gdf.geometry)
+		regions['plotting_gdf'] = gdf
 
 	return regions
 
 
-# def plotting_regions(regions):
+def plotting_regions(regions):
 
+	gdf = pd.concat([regions['region_{0}'.format(i)]['shape'] for i in range(len(regions))], axis=0)
 
 
 
 def main():
 
-	all_stations = [name for name in os.listdir('../../../../supermag/baseline/')]
-	stations = pd.DataFrame()
-	for station in all_stations:
-		print(station)
-		stations = getting_geo_coordinates(stations, station)
 	if not os.path.isfile('../outputs/station_geo_locations.csv'):
+
+		all_stations = [name for name in os.listdir('../../../../supermag/baseline/')]
+		stations = pd.DataFrame()
+		for station in all_stations:
+			print(station)
+			stations = getting_geo_coordinates(stations, station)
 		stations.to_csv('../outputs/station_geo_locations.csv')
+
+	else:
+		stations = pd.read_csv('../outputs/station_geo_locations.csv')
 	regions = finding_regions(stations)
 	# plotting_regions(regions)
 
