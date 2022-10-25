@@ -52,6 +52,7 @@ def finding_regions(stations):
 	regions = {}
 	polys, num = [], []
 	for i in range(len(stations)):
+		print('\nStation examined: '+str(stations['station'][i]))
 		lat_1 = stations['GEOLAT'][i]
 		lon_1 = stations['GEOLON'][i]
 		for j in range(len(stations)):
