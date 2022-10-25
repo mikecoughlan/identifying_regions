@@ -67,7 +67,7 @@ def finding_regions(stations):
 			poly = converting_regions_to_polygons(df)
 			regions['region_{0}'.format(i)] = {}
 			regions['region_{0}'.format(i)]['shape'] = poly
-			regions['region_{0}'.format(i)]['stations'] = stations_in_region
+			regions['region_{0}'.format(i)]['station'] = stations_in_region
 			regions['region_{0}'.format(i)]['num_stations_in_region'] = len(stations_in_region)
 			polys.append(poly)
 			num.append(len(stations_in_region))
