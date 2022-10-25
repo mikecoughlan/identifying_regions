@@ -53,7 +53,7 @@ def finding_regions(stations):
 	print(stations)
 	for i in range(len(stations)):
 		df, polys, num = pd.DataFrame(), [], []
-		print(station)
+		print(stations.iloc[i])
 		lat_1 = station['GEOLAT'][i]
 		lon_1 = station['GEOLON'][i]
 		for j in range(len(stations)):
