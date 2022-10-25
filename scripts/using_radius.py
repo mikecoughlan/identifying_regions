@@ -54,8 +54,8 @@ def finding_regions(stations):
 	for i in range(len(stations)):
 		df, polys, num = pd.DataFrame(), [], []
 		print(stations.iloc[i])
-		lat_1 = station['GEOLAT'][i]
-		lon_1 = station['GEOLON'][i]
+		lat_1 = stations['GEOLAT'][i]
+		lon_1 = stations['GEOLON'][i]
 		for j in range(len(stations)):
 			stations_in_region = []
 			dist = converting_from_degrees_to_km(lat_1, lon_1, station['GEOLAT'][j], station['GEOLON'][j])
