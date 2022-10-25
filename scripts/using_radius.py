@@ -10,7 +10,7 @@ from shapely.geometry import Point, Polygon
 
 def getting_geo_coordinates(stations, station):
 
-	df = pd.read_csv('../../supermag/baseline/{0}'.format(station))
+	df = pd.read_csv('../../../../supermag/baseline/{0}'.format(station))
 	df = df[['GEOLAT', 'GEOLON']][0]
 
 	df['station'] = station
@@ -59,7 +59,7 @@ def finding_regions(stations):
 
 def main():
 
-	all_stations = [name for name in os.listdir('../../supermag/baseline/') if os.path.isdir(name)]
+	all_stations = [name for name in os.listdir('../../../../supermag/baseline/') if os.path.isdir(name)]
 	stations = pd.DataFrame()
 	for station in all_stations:
 		print(station)
