@@ -51,9 +51,8 @@ def converting_regions_to_polygons(df):
 def finding_regions(stations):
 
 	regions = {}
-	print(stations)
+	polys, num = [], []
 	for i in range(len(stations)):
-		polys, num = [], []
 		lat_1 = stations['GEOLAT'][i]
 		lon_1 = stations['GEOLON'][i]
 		for j in range(len(stations)):
