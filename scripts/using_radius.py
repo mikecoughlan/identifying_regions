@@ -59,7 +59,7 @@ def finding_regions(stations):
 
 def main():
 
-	all_stations = [name for name in os.listdir('../../../../supermag/baseline/') if os.path.isdir(name)]
+	all_stations = [name for name in os.listdir('../../../../supermag/baseline/')]
 	print(all_stations)
 	stations = pd.DataFrame()
 	for station in all_stations:
