@@ -62,7 +62,7 @@ def finding_regions(stations):
 			if dist<250:
 				df = pd.concat([df,stations.loc[j]], axis=0)
 				stations_in_region.append(stations['station'][j])
-
+		print(df)
 		if not df.empty:
 			poly = converting_regions_to_polygons(df)
 			regions['region_{0}'.format(i)] = {}
