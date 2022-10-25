@@ -58,7 +58,7 @@ def finding_regions(stations):
 		lon_1 = stations['GEOLON'][i]
 		for j in range(len(stations)):
 			stations_in_region = []
-			dist = converting_from_degrees_to_km(lat_1, lon_1, station['GEOLAT'][j], station['GEOLON'][j])
+			dist = converting_from_degrees_to_km(lat_1, lon_1, stations['GEOLAT'][j], stations['GEOLON'][j])
 			if dist<250:
 				df = pd.concat([df,df.iloc[j]], axis=0)
 				stations_in_region.append(stations['stations'][j])
