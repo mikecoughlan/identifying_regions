@@ -89,7 +89,7 @@ def plotting_regions(regions):
 	world.plot()
 	df.plot(column='num_stations_in_region', legend=True)
 
-	plt.savefig('../plots/finding_regions_ver1.png')
+	plt.savefig('../plots/finding_regions_ver2.png')
 
 
 
