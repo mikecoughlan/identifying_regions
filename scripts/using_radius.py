@@ -1,7 +1,9 @@
 import glob
 import math
 import os
+import pickle
 
+import contextily as cx
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -73,6 +75,9 @@ def finding_regions(stations):
 			polys.append(poly)
 			num.append(len(stations_in_region))
 
+	with open('outputs/identified_regions_ver1.pkl', 'wb') as f:
+		pickle.dump(regions, f)
+	print(regions)
 	gdf = pd.DataFrame({'geometry':polys,
 						'num_stations_in_region': num})
 	gdf = gpd.GeoDataFrame(gdf, geometry=gdf.geometry)
@@ -90,13 +95,14 @@ def plotting_regions(regions):
 	# world.plot(ax=ax)
 	# df.plot(ax=ax, column='num_stations_in_region', legend=True)
 	newdf.plot(column='num_stations_in_region', legend=True)
-	plt.savefig('../plots/finding_regions_ver2.png')
+	plt.savefig('plots/finding_regions_ver2.png')
 
 
 
 def main():
 
-	if not os.path.isfile('../outputs/station_geo_locations.csv'):
+	if not os.path.isfile('outputs/station_geo_locations.csv'):
+		print(os.getcwd())
 
 		all_stations = [name for name in os.listdir('../../../../supermag/baseline/')]
 		stations = pd.DataFrame()
@@ -104,10 +110,10 @@ def main():
 			print(station)
 			stations = getting_geo_coordinates(stations, station)
 		stations.reset_index(drop=True, inplace=True)
-		stations.to_csv('../outputs/station_geo_locations.csv', index=False)
+		stations.to_csv('outputs/station_geo_locations.csv', index=False)
 
 	else:
-		stations = pd.read_csv('../outputs/station_geo_locations.csv')
+		stations = pd.read_csv('outputs/station_geo_locations.csv')
 	regions = finding_regions(stations)
 	plotting_regions(regions)
 
