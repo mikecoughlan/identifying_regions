@@ -103,6 +103,8 @@ def main():
 
 	else:
 		stations = pd.read_csv('outputs/station_geo_locations.csv')
+	stations['GEOLON'] = (stations['GEOLON'] + 180) % 360 - 180 # redefining the (0,360) geolon to a (-180,180) coordinate system
+
 	regions = finding_regions(stations)
 	plotting_regions(regions)
 
