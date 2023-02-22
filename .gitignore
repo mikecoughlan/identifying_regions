@@ -132,3 +132,4 @@ dmypy.json
 outputs/
 models/
 exe_modeling_OTT.sh
+plots/*/
