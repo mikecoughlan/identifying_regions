@@ -71,7 +71,7 @@ def finding_stations_in_grid(stations, lat_deg, lon_deg):
 				num.append(len(stations_in_region))
 				i+=1
 
-	with open('../outputs/identified_regions_ver1.pkl', 'wb') as f:
+	with open('outputs/identified_regions_geo_grid.pkl', 'wb') as f:
 		pickle.dump(regions, f)
 	print(regions)
 	gdf = pd.DataFrame({'geometry':polys,
@@ -103,8 +103,8 @@ def plotting_regions(regions):
 
 
 def main():
-
-	if not os.path.isfile('../outputs/station_geo_locations.csv'):
+	print(os.getcwd())
+	if not os.path.isfile('outputs/station_geo_locations.csv'):
 
 		all_stations = [name for name in os.listdir('../../../../supermag/baseline/')]
 		stations = pd.DataFrame()
@@ -114,7 +114,7 @@ def main():
 		stations.to_csv('outputs/station_geo_locations.csv', index=False)
 
 	else:
-		stations = pd.read_csv('../outputs/station_geo_locations.csv')
+		stations = pd.read_csv('outputs/station_geo_locations.csv')
 	stations['GEOLON'] = (stations['GEOLON'] + 180) % 360 - 180 # redefining the (0,360) geolon to a (-180,180) coordinate system
 
 	regions = finding_stations_in_grid(stations, 5, 5)
