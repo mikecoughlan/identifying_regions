@@ -73,11 +73,11 @@ def plotting_minute_resoultion(df, day):
 def making_video(day):
 
 	fps=10
-	image_folder = f'plots/{day}'
-	image_files = [os.path.join(image_folder,img)
+	image_folder = f'../plots/{day}'
+	image_files = sorted([os.path.join(image_folder,img)
 				for img in os.listdir(image_folder)
 				if img.endswith('.png')]
-	clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(sorted(image_files), fps=fps)
+	clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(natsorted(image_files), fps=fps)
 	clip.write_videofile(f'plots/{day}/video.mp4', logger=None)
 
 
@@ -86,7 +86,7 @@ def main():
 	start_times = ['2012-03-12 00:00:00']
 	end_times = ['2012-03-13 00:00:00']
 
-	regions = loading_dict()
+	# regions = loading_dict()
 
 	for stime, etime in zip(start_times, end_times):
 		day = stime.split()[0]
@@ -94,8 +94,8 @@ def main():
 		if not os.path.exists(f'plots/{day}'):
 			os.makedirs(f'plots/{day}')
 
-		df = segmenting_rsd_to_timestamps(regions, stime, etime)
-		plotting_minute_resoultion(df, day)
+		# df = segmenting_rsd_to_timestamps(regions, stime, etime)
+		# plotting_minute_resoultion(df, day)
 		making_video(day)
 
 
