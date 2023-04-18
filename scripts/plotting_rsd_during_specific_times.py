@@ -7,6 +7,7 @@ import geopandas as gpd
 import matplotlib
 import matplotlib.pyplot as plt
 import moviepy
+import moviepy.video.io.ImageSequenceClip
 import numpy as np
 import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -76,7 +77,7 @@ def making_video(day):
 	image_files = [os.path.join(image_folder,img)
 				for img in os.listdir(image_folder)
 				if img.endswith('.png')]
-	clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(natsorted(image_files), fps=fps)
+	clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(sorted(image_files), fps=fps)
 	clip.write_videofile(f'plots/{day}/video.mp4', logger=None)
 
 
