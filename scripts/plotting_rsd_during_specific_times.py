@@ -76,10 +76,9 @@ def making_video(day):
 	image_folder = f'../plots/{day}'
 	image_files = sorted([os.path.join(image_folder,img)
 				for img in os.listdir(image_folder)
-				if img.endswith('.png')])
-	print(image_files)
-	clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(image_files, fps=fps)
-	clip.write_videofile(f'../plots/{day}/video.mp4', logger=None)
+				if img.endswith('.png')]
+	clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(natsorted(image_files), fps=fps)
+	clip.write_videofile(f'plots/{day}/video.mp4', logger=None)
 
 
 def main():
