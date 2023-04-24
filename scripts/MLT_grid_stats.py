@@ -24,24 +24,20 @@ def creating_dict_of_stations(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, ml
 	'''
 	stations_dict = {}
 	for mlat in tqdm(np.arange(mlat_min, mlat_max, mlat_step)):
-		stations_dict[f'mlat_{mlat}'] = {}
 		stats = []
-		for mlt in tqdm(np.arange(mlt_min, mlt_max, mlt_step)):
-			mlat_min_bin = mlat
-			mlat_max_bin = mlat + mlat_step
-			mlt_min_bin = mlt
-			mlt_max_bin = mlt + mlt_step
-			for filename in sorted(glob.glob(data_dir+'*.feather', recursive=True)):
-				df = pd.read_feather(filename)
-				if (df['MLAT'].any() >= mlat_min_bin) & (df['MLAT'].any() < mlat_max_bin):
-					file_name = os.path.basename(filename)
-					station = file_name.split('.')[0]
-					stat.append(station)
+		mlat_min_bin = mlat
+		mlat_max_bin = mlat + mlat_step
+		for filename in glob.glob(data_dir+'*.feather', recursive=True):
+			df = pd.read_feather(filename)
+			if df['MLAT'].between(mlat_min_bin, mlat_max_bin, inclusive='left').any():
+				file_name = os.path.basename(filename)
+				station = file_name.split('.')[0]
+				stats.append(station)
 
-			stations_dict[f'mlat_{mlat}'][mlt] = stats
+		stations_dict[f'mlat_{mlat}'] = stats
 
-	with open(f'outputs/stations_dict_{mlat_step}MLAT_x_{int(1/mlt_step)}mlt.pkl', 'wb') as f:
-		pickle.dump(f, stations_dict)
+	with open(f'outputs/stations_dict_{mlat_step}_MLAT.pkl', 'wb') as f:
+		pickle.dump(stations_dict, f)
 
 	return stations_dict
 
@@ -78,7 +74,7 @@ def process_directory(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, mlat_step,
 	'''
 	Process all feather files in a directory and return a list of filtered data frames for each 5 degree bin.
 	'''
-	data_frames = []
+	stats_df = pd.DataFrame()
 	for mlat in np.arange(mlat_min, mlat_max, mlat_step):
 		for mlt in np.arange(mlt_min, mlt_max, mlt_step):
 			print(f'MLAT: {mlat}' + f' MLT: {mlt}')
@@ -86,31 +82,45 @@ def process_directory(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, mlat_step,
 			mlat_max_bin = mlat + mlat_step
 			mlt_min_bin = mlt
 			mlt_max_bin = mlt + mlt_step
-			for stats in stations_dict[f'mlat_{mlat}'][mlt]:
+			temp_df = pd.DataFrame()
+			for stats in stations_dict[f'mlat_{mlat}']:
 				filepath = os.path.join(data_dir, f'{stats}.feather')
 				df_filtered = process_file(filepath, mlat_min_bin, mlat_max_bin, mlt_min_bin, mlt_max_bin)
 				if len(df_filtered) > 0:
-					data_frames.append(df_filtered)
+					temp_df = pd.concat([temp_df, df_filtered], axis=0, ignore_index=True).reset_index(drop=True)
+			if not temp_df.empty:
+				stats = compute_statistics(temp_df, mlat, mlt)
+				print(stats)
+				stats_df = pd.concat([stats_df, stats], axis=0, ignore_index=True)
 
-	return data_frames
+	return stats_df
 
 
-def compute_statistics(data_frames):
+def compute_statistics(df_combined, mlat, mlt):
 	'''
 	Compute the statistics of the 'dbht' parameter for each 5 degree bin.
 	'''
-	df_combined = pd.concat(data_frames)
-	stats = df_combined.groupby([pd.cut(df_combined['MLAT'], np.arange(mlat_min, mlat_max + mlat_step, mlat_step)),
-									pd.cut(df_combined['MLT'], np.arange(mlt_min, mlt_max + mlt_step, mlt_step))])['dbht'].agg(['mean', 'std', 'count']).reset_index()
+	# df_combined = pd.concat(data_frames)
+	# stats = df_combined.groupby([pd.cut(df_combined['MLAT'], np.arange(mlat_min, mlat_max + mlat_step, mlat_step)),
+	# 								pd.cut(df_combined['MLT'], np.arange(mlt_min, mlt_max + mlt_step, mlt_step))])['dbht'].agg(['mean', 'std', 'count']).reset_index()
+	df_combined = df_combined[df_combined['dbht'].notna()]
+	stats_df = pd.DataFrame({'MLAT':mlat,
+							'MLT': mlt,
+							'count':len(df_combined),
+							'mean': df_combined['dbht'].mean(),
+							'median':df_combined['dbht'].median(),
+							'std': df_combined['dbht'].std(),
+							'99th':df_combined['dbht'].quantile(0.99)},
+							index=[0])
 
-	return stats
+	return stats_df
 
 
 def plot_results(stats):
 	'''
 	Plot the results.
 	'''
-	plt.scatter(stats['MLT'], stats['MLAT'], s=stats['count'], c=stats['mean'])
+	plt.scatter(stats['MLT'], stats['MLAT'], s=stats['count'], c=stats['median'])
 	plt.colorbar()
 	plt.xlabel('Longitude')
 	plt.ylabel('Latitude')
@@ -120,17 +130,19 @@ def plot_results(stats):
 
 def main():
 	# Process the directory of feather files and compute the statistics for each 5 degree bin
-	if not os.path.exists(f'outputs/stations_dict_{mlat_step}MLAT_x_{int(1/mlt_step)}mlt.pkl'):
+	if not os.path.exists(f'outputs/stations_dict_{mlat_step}_MLAT.pkl'):
 		stations_dict = creating_dict_of_stations(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, mlat_step, mlt_step)
 	else:
-		with open(f'outputs/stations_dict_{mlat_step}MLAT_x_{int(1/mlt_step)}mlt.pkl', 'rb') as f:
+		with open(f'outputs/stations_dict_{mlat_step}_MLAT.pkl', 'rb') as f:
 			stations_dict = pickle.load(f)
 
-	data_frames = process_directory(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, mlat_step, mlt_step, stations_dict)
-	stats = compute_statistics(data_frames)
+	stats_df = process_directory(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, mlat_step, mlt_step, stations_dict)
+	# stats = compute_statistics(data_frames)
+
+	stats_df.to_feather(f'outputs/stats_df_{mlat_step}_MLAT.feather')
 
 	# Plot the results
-	plot_results(stats)
+	plot_results(stats_df)
 
 
 if __name__ == '__main__':
