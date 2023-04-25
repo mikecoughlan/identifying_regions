@@ -2,9 +2,12 @@ import glob
 import os
 import pickle
 
+import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from tqdm import tqdm
 
 # Define the directory containing the CSV files
@@ -115,17 +118,67 @@ def compute_statistics(df_combined, mlat, mlt):
 
 	return stats_df
 
+def plot_heatmap(stats):
+	'''
+	plots a heatmap of a particular parameter using imshow. First transforms the data frame into a 2d array for plotting
+
+	Args:
+		stats (pd.df): dataframe containing the locations and values
+	'''
+
+	param = 'count'
+
+	# get the unique values of the x and y columns
+	x_values = stats['MLT'].unique()
+	y_values = stats['MLAT'].unique()
+
+	# sort the values in ascending order
+	x_values = np.sort(x_values)
+	y_values = np.sort(y_values)
+
+	# create a 2D array of zeros with dimensions equal to the number of unique x and y values
+	arr = np.zeros((len(y_values), len(x_values)))
+
+	# loop through the rows of the dataframe and fill in the values in the array
+	for _, row in stats.iterrows():
+		x_index = np.where(x_values == row['MLT'])[0][0]
+		y_index = np.where(y_values == row['MLAT'])[0][0]
+		arr[y_index, x_index] = row[param]
+
+	arr = np.flip(arr, axis=0)
+	print(np.shape(arr))
+
+	xticks = [0, 24, 48, 72, 95]
+	xtick_labels = [0, 6, 12, 18, 24]
+
+	yticks = [0, 5, 10, 15, 20, 25, 30, 36]
+	ytick_labels = [90, 65, 40, 15, -10, -35, -60, -90]
+
+	fig = plt.figure(figsize=(20,15))
+	ax = plt.subplot(111)
+	plt.imshow(arr, norm=colors.LogNorm())
+	plt.colorbar(shrink=0.5)
+	plt.xlabel('MLT')
+	plt.ylabel('MLAT')
+	plt.xticks(xticks, labels=xtick_labels)
+	plt.yticks(yticks, labels=ytick_labels)
+	plt.title(f'{param} dbht in 5 Degree Bins')
+	plt.savefig(f'plots/heatmap_{param}.png')
 
 def plot_results(stats):
 	'''
 	Plot the results.
 	'''
-	plt.scatter(stats['MLT'], stats['MLAT'], s=stats['count'], c=stats['median'])
-	plt.colorbar()
-	plt.xlabel('Longitude')
-	plt.ylabel('Latitude')
-	plt.title('Mean DBHT in 5 Degree Bins')
-	plt.savefig('plots/mlt_bins_count_and_mean.png')
+	param = 'std'
+
+	fig = plt.figure(figsize=(20,15))
+	# plt.scatter(stats['MLT'], stats['MLAT'], s=np.log10(stats['count']), c=stats['median'])
+	sns.kdeplot(data=stats, x='MLT', y='MLAT', fill=True, weights=param)
+	# plt.colorbar()
+	plt.xlabel('MLT')
+	plt.ylabel('MLAT')
+	plt.title(f'{param} dbht in 5 Degree Bins')
+	plt.savefig(f'plots/mlt_bins_{param}.png')
 
 
 def main():
@@ -136,12 +189,17 @@ def main():
 		with open(f'outputs/stations_dict_{mlat_step}_MLAT.pkl', 'rb') as f:
 			stations_dict = pickle.load(f)
 
-	stats_df = process_directory(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, mlat_step, mlt_step, stations_dict)
-	# stats = compute_statistics(data_frames)
+	if not os.path.exists(f'outputs/stats_df_{mlat_step}_MLAT.feather'):
+		stats_df = process_directory(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, mlat_step, mlt_step, stations_dict)
+		# stats = compute_statistics(data_frames)
 
-	stats_df.to_feather(f'outputs/stats_df_{mlat_step}_MLAT.feather')
+		stats_df.to_feather(f'outputs/stats_df_{mlat_step}_MLAT.feather')
+
+	else:
+		stats_df = pd.read_feather(f'outputs/stats_df_{mlat_step}_MLAT.feather')
 
 	# Plot the results
+	plot_heatmap(stats_df)
 	plot_results(stats_df)
 
 
