@@ -19,7 +19,7 @@ mlat_max = 90
 mlt_min = 0
 mlt_max = 24
 mlat_step = 5
-mlt_step = .25
+mlt_step = (1/3)
 
 def creating_dict_of_stations(data_dir, mlat_min, mlat_max, mlt_min, mlt_max, mlat_step, mlt_step):
 	'''
@@ -126,7 +126,7 @@ def plot_heatmap(stats):
 		stats (pd.df): dataframe containing the locations and values
 	'''
 
-	param = 'count'
+	param = 'std'
 
 	# get the unique values of the x and y columns
 	x_values = stats['MLT'].unique()
@@ -156,7 +156,7 @@ def plot_heatmap(stats):
 
 	fig = plt.figure(figsize=(20,15))
 	ax = plt.subplot(111)
-	plt.imshow(arr, norm=colors.LogNorm())
+	plt.imshow(arr)
 	plt.colorbar(shrink=0.5)
 	plt.xlabel('MLT')
 	plt.ylabel('MLAT')
@@ -172,9 +172,9 @@ def plot_results(stats):
 	param = 'std'
 
 	fig = plt.figure(figsize=(20,15))
-	# plt.scatter(stats['MLT'], stats['MLAT'], s=np.log10(stats['count']), c=stats['median'])
-	sns.kdeplot(data=stats, x='MLT', y='MLAT', fill=True, weights=param)
-	# plt.colorbar()
+	plt.scatter(stats['MLT'], stats['MLAT'], c=stats[param])
+	# sns.kdeplot(data=stats, x='MLT', y='MLAT', fill=True, weights=param)
+	plt.colorbar()
 	plt.xlabel('MLT')
 	plt.ylabel('MLAT')
 	plt.title(f'{param} dbht in 5 Degree Bins')
