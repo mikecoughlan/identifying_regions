@@ -66,7 +66,7 @@ def finding_regions(stations):
 				stations_in_region.append(stations['station'][j])
 		df = stations[stations['station'].isin(stations_in_region)]
 		print(df)
-		if len(df)>3:
+		if len(df)>1:
 			poly = converting_regions_to_polygons(df)
 			regions['region_{0}'.format(i)] = {}
 			regions['region_{0}'.format(i)]['shape'] = poly
