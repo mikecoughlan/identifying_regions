@@ -58,8 +58,12 @@ def finding_stations_in_grid(stations, lat_deg, lon_deg):
 		for lon in lon_grid:
 			stations_in_region = stations[(stations['GEOLAT']>=lat)&(stations['GEOLAT']<lat+lat_deg)
 											&(stations['GEOLON']>=lon)&(stations['GEOLON']<lon+lon_deg)]
+			if (lat >55)&(lon>0)&(len(stations_in_region)>0):
+				print(f'lat: {lat} - lon: {lon}')
+				print(stations_in_region)
 			stations_in_region = stations_in_region['station'].tolist()
-
+			if (lat >55)&(lon>0)&(len(stations_in_region)>0):
+				print(stations_in_region)
 			if len(stations_in_region) > 0:
 
 				poly = converting_grid_to_polygons(lat, lon, lat_deg, lon_deg)
