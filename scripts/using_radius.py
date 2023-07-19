@@ -3,7 +3,6 @@ import math
 import os
 import pickle
 
-import contextily as cx
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -66,7 +65,7 @@ def finding_regions(stations):
 				stations_in_region.append(stations['station'][j])
 		df = stations[stations['station'].isin(stations_in_region)]
 		print(df)
-		if len(df)>1:
+		if len(df)>2:
 			poly = converting_regions_to_polygons(df)
 			regions['region_{0}'.format(i)] = {}
 			regions['region_{0}'.format(i)]['shape'] = poly
@@ -75,7 +74,7 @@ def finding_regions(stations):
 			polys.append(poly)
 			num.append(len(stations_in_region))
 
-	with open('outputs/identified_regions_ver1.pkl', 'wb') as f:
+	with open('outputs/identified_regions_min_2.pkl', 'wb') as f:
 		pickle.dump(regions, f)
 	print(regions)
 	gdf = pd.DataFrame({'geometry':polys,
@@ -95,7 +94,7 @@ def plotting_regions(regions):
 	# world.plot(ax=ax)
 	# df.plot(ax=ax, column='num_stations_in_region', legend=True)
 	newdf.plot(column='num_stations_in_region', legend=True)
-	plt.savefig('plots/finding_regions_ver2.png')
+	plt.savefig('plots/finding_regions_min_2.png')
 
 
 
