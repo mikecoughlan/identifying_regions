@@ -214,7 +214,27 @@ def plotting(stations, stats, data_dir, solar, geo_df, region):
 		plt.legend()
 		plt.margins(x=0)
 
-	ax = plt.subplot(5,1,3)
+	ax = plt.subplot(5,2,5)
+	plt.title('Station locations')
+	# plt.xlim(geo_df['GEOLON'].min()-5, geo_df['GEOLON'].max()+5)
+	# plt.ylim(geo_df['GEOLAT'].min()-5, geo_df['GEOLAT'].max()+5)
+	plt.xlabel('geolon')
+	plt.ylabel('geolat')
+	for col, stat in zip(colors, stations):
+		lat, lon = getting_geo_location(stat, geo_df)
+		plt.scatter(lon, lat, color=col, s=70)
+
+
+	ax = plt.subplot(5,2,6)
+	plt.title('Max RSD Stations')
+	value_counts = stats['max_rsd']['max_rsd_station'].value_counts()
+	order = []
+	for stat in stations:
+		order.append(value_counts.loc[stat])
+	plt.pie(order, labels=stations, colors=colors)
+
+
+	ax = plt.subplot(5,1,4)
 
 	plt.xlim(twins_start, twins_end)
 	stats['max_rsd']['colors'] = stats['max_rsd']['max_rsd_station'].map(color_map)
@@ -225,7 +245,7 @@ def plotting(stations, stats, data_dir, solar, geo_df, region):
 	plt.ylabel('nT/min')
 	plt.margins(x=0, y=0)
 
-	ax = plt.subplot(5,1,4)
+	ax = plt.subplot(5,1,5)
 
 	plt.xlim(twins_start, twins_end)
 
@@ -242,16 +262,6 @@ def plotting(stations, stats, data_dir, solar, geo_df, region):
 	plt.yticks([])
 	plt.legend()
 
-	ax = plt.subplot(5,1,5)
-	plt.title('Station locations')
-	# plt.xlim(geo_df['GEOLON'].min()-5, geo_df['GEOLON'].max()+5)
-	# plt.ylim(geo_df['GEOLAT'].min()-5, geo_df['GEOLAT'].max()+5)
-	plt.xlabel('geolon')
-	plt.ylabel('geolat')
-	for col, stat in zip(colors, stations):
-		lat, lon = getting_geo_location(stat, geo_df)
-		plt.scatter(lon, lat, color=col, s=70)
-
 	plt.savefig(f'plots/station_comparisons/{region}.png')
 	plt.close()
 	gc.collect()
@@ -260,20 +270,20 @@ def plotting(stations, stats, data_dir, solar, geo_df, region):
 def main():
 
 	# Process the directory of feather files and compute the statistics for each 5 degree bin
-	with open(f'outputs/identified_regions_min_2.pkl', 'rb') as f:
+	with open(f'outputs/twins_era_identified_regions_min_2.pkl', 'rb') as f:
 		stations_dict = pickle.load(f)
 
-	if not os.path.exists(f'outputs/stats_dict_radius_regions_min_2.pkl'):
+	if not os.path.exists(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl'):
 		stats_dict = process_directory(stations_dict, data_dir, mlt_min, mlt_max, mlt_step)
 
 		# stats = compute_statistics(data_frames)
 		print('Sys size of stats_dict: '+str(sys.getsizeof(stats_dict)))
 
-		with open(f'outputs/stats_dict_radius_regions_min_2.pkl', 'wb') as s:
+		with open(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl', 'wb') as s:
 			pickle.dump(stats_dict, s)
 
 	else:
-		with open(f'outputs/stats_dict_radius_regions_min_2.pkl', 'rb') as o:
+		with open(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl', 'rb') as o:
 			stats_dict = pickle.load(o)
 
 	solar = getting_solar_cycle()
