@@ -54,7 +54,7 @@ def process_file(df, mlt_min_bin, mlt_max_bin):
 
 	return df_filtered
 
-def calculate_max_rsd(dbdt_df):
+def calculate_max_rsd(dbdt_df, mlt_df):
 	'''
 	takes in the dbdt values df for the stations in the region and calculates
 	the max RSD values. Includes a column in the final dataframe that labels
@@ -79,6 +79,7 @@ def calculate_max_rsd(dbdt_df):
 
 	max_df['max_rsd'] = rsd_df.max(axis=1)
 	max_df['max_rsd_station'] = rsd_df.idxmax(axis=1)
+	max_df['MLT'] = (mlt_df.max(axis=1) + mlt_df.min(axis=1)) / 2
 
 	return max_df
 
@@ -93,6 +94,7 @@ def process_directory(stations_dict, data_dir, mlt_min, mlt_max, mlt_step):
 		print(f'Region: {region}')
 		stats_df[region] = {}
 		dbdt_df = pd.DataFrame(index=twins_time_period)
+		mlt_df = pd.DataFrame(index=twins_time_period)
 		for stats in stations_dict[region]['station']:
 			temp_df = pd.DataFrame()
 			filepath = os.path.join(data_dir, f'{stats}.feather')
@@ -101,6 +103,8 @@ def process_directory(stations_dict, data_dir, mlt_min, mlt_max, mlt_step):
 			df = df[twins_start:twins_end]
 			dbdt_df = pd.concat([dbdt_df, df.copy()['dbht']], axis=1, ignore_index=False)
 			dbdt_df.rename(columns={'dbht':stats}, inplace=True)
+			mlt_df = pd.concat([mlt_df, df.copy()['MLT']], axis=1, ignore_index=False)
+			mlt_df.rename(columns={'MLT':stats}, inplace=True)
 			stats_df[region][f'{stats}_dates'] = df.copy()['Date_UTC'].dropna()
 			for mlt in np.arange(mlt_min, mlt_max, mlt_step):
 				mlt_min_bin = mlt
@@ -121,7 +125,7 @@ def process_directory(stations_dict, data_dir, mlt_min, mlt_max, mlt_step):
 				temp_df.set_index("MLT", inplace=True)
 				stats_df[region][stats] = temp_df
 
-		rsd_df = calculate_max_rsd(dbdt_df)
+		rsd_df = calculate_max_rsd(dbdt_df, mlt_df)
 		stats_df[region]['max_rsd'] = rsd_df
 
 	return stats_df
@@ -273,18 +277,18 @@ def main():
 	with open(f'outputs/twins_era_identified_regions_min_2.pkl', 'rb') as f:
 		stations_dict = pickle.load(f)
 
-	if not os.path.exists(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl'):
-		stats_dict = process_directory(stations_dict, data_dir, mlt_min, mlt_max, mlt_step)
+	# if not os.path.exists(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl'):
+	stats_dict = process_directory(stations_dict, data_dir, mlt_min, mlt_max, mlt_step)
 
 		# stats = compute_statistics(data_frames)
-		print('Sys size of stats_dict: '+str(sys.getsizeof(stats_dict)))
+	print('Sys size of stats_dict: '+str(sys.getsizeof(stats_dict)))
 
-		with open(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl', 'wb') as s:
-			pickle.dump(stats_dict, s)
+	with open(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl', 'wb') as s:
+		pickle.dump(stats_dict, s)
 
-	else:
-		with open(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl', 'rb') as o:
-			stats_dict = pickle.load(o)
+	# else:
+	# 	with open(f'outputs/twins_era_stats_dict_radius_regions_min_2.pkl', 'rb') as o:
+	# 		stats_dict = pickle.load(o)
 
 	solar = getting_solar_cycle()
 	start_date = pd.to_datetime('1995-01-01')
