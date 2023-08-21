@@ -9,20 +9,27 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import Point, Polygon
 
+# defining the twins era start and end times
+twins_start = pd.to_datetime('2010-01-01')
+twins_end = pd.to_datetime('2017-12-31')
+twins_time_period = pd.date_range(start=twins_start, end=twins_end, freq='min')
 
 def getting_geo_coordinates(stations, station):
 
-	list_of_dfs = sorted(glob.glob('../../../../supermag/baseline/{0}/*.csv'.format(station), recursive=True))
-	df = pd.read_csv(list_of_dfs[0])
-	df = df[['GEOLAT', 'GEOLON']][:1]
+	df = pd.read_feather(f'../data/supermag/{station}.feather')
+	df.set_index('Date_UTC', inplace=True, drop=True)
+	df.index = pd.to_datetime(df.index)
+	df = df[twins_start:twins_end]
+	df.dropna(inplace=True)
 
-	df['station'] = station
+	if not df.empty:
 
-	print(df)
+		df = df[['GEOLAT', 'GEOLON']][:1]
 
-	stations = pd.concat([stations, df], axis=0)
+		df['station'] = station
 
-	print(stations)
+		stations = pd.concat([stations, df], axis=0)
+
 
 	return stations
 
@@ -100,19 +107,19 @@ def plotting_regions(regions):
 
 def main():
 
-	if not os.path.isfile('outputs/station_geo_locations.csv'):
+	if not os.path.isfile('outputs/twins_era_station_geo_locations.csv'):
 		print(os.getcwd())
 
-		all_stations = [name for name in os.listdir('../../../../supermag/baseline/')]
+		all_stations = [os.path.splitext(file_name)[0] for file_name in os.listdir('../data/supermag/')]
 		stations = pd.DataFrame()
 		for station in all_stations:
 			print(station)
 			stations = getting_geo_coordinates(stations, station)
 		stations.reset_index(drop=True, inplace=True)
-		stations.to_csv('outputs/station_geo_locations.csv', index=False)
+		stations.to_csv('outputs/twins_era_station_geo_locations.csv', index=False)
 
 	else:
-		stations = pd.read_csv('outputs/station_geo_locations.csv')
+		stations = pd.read_csv('outputs/twins_era_station_geo_locations.csv')
 	regions = finding_regions(stations)
 	plotting_regions(regions)
 
